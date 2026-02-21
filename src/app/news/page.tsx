@@ -5,7 +5,7 @@ import {
     LayoutDashboard, ChevronRight, Newspaper, RefreshCw,
     Star, TrendingUp, TrendingDown, Minus, Radio, ExternalLink,
 } from "lucide-react";
-import type { NewsItem } from "@/app/api/news/route";
+import { fetchCryptoCompare, type NewsItem } from "@/app/api/news/route";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -120,16 +120,13 @@ export default async function NewsPage() {
     let fetchError = false;
 
     try {
-        const res = await fetch(
-            `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/api/news`,
-            { cache: "no-store" }
-        );
-        if (res.ok) {
-            const data = (await res.json()) as { items: NewsItem[] };
-            items = data.items ?? [];
-        } else {
-            fetchError = true;
-        }
+        items = await fetchCryptoCompare();
+
+        // Sort: high-impact first, then by date descending
+        items.sort((a, b) => {
+            if (a.isHighImpact !== b.isHighImpact) return a.isHighImpact ? -1 : 1;
+            return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+        });
     } catch {
         fetchError = true;
     }

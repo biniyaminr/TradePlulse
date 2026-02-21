@@ -52,7 +52,7 @@ function detectHighImpact(text: string): boolean {
 
 // ─── CryptoCompare fetcher (free, no key required for news) ──────────────────
 
-async function fetchCryptoCompare(): Promise<NewsItem[]> {
+export async function fetchCryptoCompare(): Promise<NewsItem[]> {
     const res = await fetch(
         "https://min-api.cryptocompare.com/data/v2/news/?lang=EN&categories=BTC,ETH,XAU,Forex,Trading,Regulation&sortOrder=latest",
         {
