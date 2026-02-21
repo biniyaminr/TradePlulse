@@ -118,6 +118,7 @@ export default function PriceCard({ data, featured = false }: PriceCardProps) {
                         "Notification" in window &&
                         Notification.permission === "granted"
                     ) {
+                        console.log("Firing notification...");
                         new Notification("\uD83D\uDEA8 TradePulse AI Setup", {
                             body: `${icc.signal} ${symbol}\nEntry: ${parsed.entry} | TP: ${parsed.tp}`,
                         });

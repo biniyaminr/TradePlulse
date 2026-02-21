@@ -1,20 +1,36 @@
-// This is your Prisma schema file — see https://pris.ly/d/prisma-schema
-
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TradeStatus {
+  ACTIVE
+  WON
+  LOST
 }
 
 model Trade {
-  id        String   @id @default(uuid())
-  symbol    String
-  signal    String
-  entry     Float
-  sl        Float
-  tp        Float
-  createdAt DateTime @default(now())
+  id           String      @id @default(uuid())
+  symbol       String
+  signal       String
+  entry        Float
+  sl           Float
+  tp           Float
+  status       TradeStatus @default(ACTIVE)
+  pnl          Float?
+  positionSize Float?
+  riskAmount   Float?
+  createdAt    DateTime    @default(now())
+}
+
+model Account {
+  id             String @id @default(uuid())
+  virtualBalance Float  @default(10000)
+  riskPercentage Float  @default(1.0)
+  winRate        Float  @default(0)
+  totalTrades    Int    @default(0)
 }

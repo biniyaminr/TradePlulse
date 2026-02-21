@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@google/genai": "^1.42.0",
+    "@neondatabase/serverless": "^1.0.2",
     "@prisma/adapter-better-sqlite3": "^7.4.1",
-    "@prisma/client": "^7.4.1",
+    "@prisma/adapter-neon": "^7.4.1",
+    "@prisma/client": "^5.22.0",
     "better-sqlite3": "^12.6.2",
     "clsx": "^2.1.1",
     "lucide-react": "^0.575.0",
@@ -28,7 +30,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
-    "prisma": "^7.4.1",
+    "prisma": "^5.22.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

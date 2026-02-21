@@ -1,21 +1,15 @@
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
-import { PrismaClient } from "@prisma/client";
-import path from "path";
+import { PrismaClient } from '@prisma/client'
 
-// Resolve the SQLite file path relative to the project root
-const dbPath = path.resolve(process.cwd(), "prisma/dev.db");
-
-function createPrismaClient() {
-    // PrismaBetterSqlite3 v7 takes a connection-string style { url } object
-    const adapter = new PrismaBetterSqlite3({ url: `file:${dbPath}` });
-    return new PrismaClient({ adapter });
+const prismaClientSingleton = () => {
+    return new PrismaClient()
 }
 
-// Prevent multiple PrismaClient instances during Next.js hot reloading in dev
-const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
+declare global {
+    var prisma: undefined | ReturnType<typeof prismaClientSingleton>
+}
 
-export const prisma = globalForPrisma.prisma ?? createPrismaClient();
+const prisma = globalThis.prisma ?? prismaClientSingleton()
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+export default prisma
 
-export default prisma;
+if (process.env.NODE_ENV !== 'production') globalThis.prisma = prisma

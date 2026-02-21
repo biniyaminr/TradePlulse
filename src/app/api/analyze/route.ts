@@ -65,6 +65,9 @@ If BUY: Place the SL safely below the recent Higher Low. Calculate TP so that (T
 
 If SELL: Place the SL safely above the recent Lower High. Calculate TP so that (Entry - TP) is exactly 4 times greater than (SL - Entry).
 
+ASSET-SPECIFIC RISK RULES:
+You must place the Stop Loss (SL) exactly at the technical invalidation point of the ICC structure (e.g., precisely below the Higher Low for a BUY, or above the Lower High for a SELL). Calculate the Take Profit to ensure a strict 1:4 Risk/Reward ratio.
+
 Return ONLY a raw JSON object with no markdown formatting or backticks. Format: { "entry": number, "sl": number, "tp": number }`;
 }
 
@@ -193,8 +196,20 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             console.error("Telegram Error:", telegramErr);
         }
 
-        // 6 ── Persist trade setup to the SQLite journal (non-blocking)
+        // 6 ── Persist trade setup with Dynamic Position Sizing
         try {
+            // Fetch the user's live account settings
+            const account = await prisma.account.findFirst();
+
+            const virtualBalance = account ? account.virtualBalance : 10000;
+            const riskPercentage = account ? account.riskPercentage : 1.0;
+
+            // Quant Math
+            const riskAmount = virtualBalance * (riskPercentage / 100);
+            const slDistance = Math.abs(setup.entry - setup.sl);
+            // Protect against divide by zero if entry perfectly equals SL
+            const positionSize = slDistance > 0 ? (riskAmount / slDistance) : 0;
+
             await prisma.trade.create({
                 data: {
                     symbol,
@@ -202,6 +217,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                     entry: setup.entry,
                     sl: setup.sl,
                     tp: setup.tp,
+                    status: "ACTIVE",
+                    positionSize,
+                    riskAmount
                 },
             });
         } catch (dbErr: unknown) {

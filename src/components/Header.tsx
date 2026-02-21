@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Wifi, WifiOff, Bell, Search } from "lucide-react";
+import { Wifi, WifiOff, Bell } from "lucide-react";
 import clsx from "clsx";
 
 interface HeaderProps {
@@ -60,12 +60,7 @@ export default function Header({ isLive }: HeaderProps) {
 
             {/* Right: search + clock + bell */}
             <div className="flex items-center gap-4">
-                {/* Search */}
-                <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-[#111827] border border-[#1e2d45] rounded-lg text-sm text-[#475569]">
-                    <Search size={14} />
-                    <span>Search markets...</span>
-                    <kbd className="ml-4 px-1.5 py-0.5 text-[10px] bg-[#1e2d45] rounded font-mono">⌘K</kbd>
-                </div>
+
 
                 {/* Clock */}
                 <div className="hidden sm:flex items-center gap-1.5 text-sm font-mono text-[#94a3b8]">
