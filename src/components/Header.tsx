@@ -29,16 +29,16 @@ export default function Header({ isLive }: HeaderProps) {
     }, []);
 
     return (
-        <header className="flex items-center justify-between px-6 py-4 border-b border-[#1e2d45] bg-[#0f1629] shrink-0">
+        <header className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 border-b border-[#1e2d45] bg-[#0f1629] shrink-0 z-10">
             {/* Left: status + title */}
-            <div className="flex items-center gap-4">
-                <div>
+            <div className="flex items-center gap-2 md:gap-4">
+                <div className="hidden sm:block">
                     <h1 className="text-lg font-semibold text-white leading-tight">Live Markets</h1>
                     <p className="text-xs text-[#475569]">Real-time prices updated continuously</p>
                 </div>
                 <span
                     className={clsx(
-                        "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border",
+                        "flex shrink-0 items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] md:text-xs font-semibold border",
                         isLive
                             ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
                             : "bg-amber-500/10 text-amber-400 border-amber-500/30"

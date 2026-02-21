@@ -96,8 +96,8 @@ export default async function PortfolioPage() {
                             <p className="text-[#475569] text-sm">No active setups right now. Waiting for the AI...</p>
                         </div>
                     ) : (
-                        <div className="rounded-xl border border-[#1e2d45] overflow-hidden">
-                            <table className="w-full text-sm">
+                        <div className="rounded-xl border border-[#1e2d45] overflow-x-auto">
+                            <table className="w-full text-sm min-w-[700px]">
                                 <thead>
                                     <tr className="bg-[#111827] border-b border-[#1e2d45]">
                                         {["Date", "Asset", "Signal", "Entry", "SL", "TP", "Size", "Risk"].map((col) => (
@@ -147,8 +147,8 @@ export default async function PortfolioPage() {
                             <p className="text-[#475569] text-sm">Simulation history is empty.</p>
                         </div>
                     ) : (
-                        <div className="rounded-xl border border-[#1e2d45] overflow-hidden opacity-90 hover:opacity-100 transition-opacity">
-                            <table className="w-full text-sm">
+                        <div className="rounded-xl border border-[#1e2d45] overflow-x-auto opacity-90 hover:opacity-100 transition-opacity">
+                            <table className="w-full text-sm min-w-[600px]">
                                 <thead>
                                     <tr className="bg-[#111827] border-b border-[#1e2d45]">
                                         {["Date", "Asset", "Status", "Entry", "Target Hit", "PnL"].map((col) => (

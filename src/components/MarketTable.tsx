@@ -42,7 +42,7 @@ export default function MarketTable({ prices }: MarketTableProps) {
             </div>
 
             <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm min-w-[600px]">
                     <thead>
                         <tr className="border-b border-[#1e2d45]">
                             <th className="text-left px-5 py-3 text-[10px] font-semibold text-[#475569] uppercase tracking-widest">#</th>

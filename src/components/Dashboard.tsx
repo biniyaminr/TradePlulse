@@ -35,7 +35,7 @@ export default function Dashboard() {
             <Sidebar />
 
             {/* Main column */}
-            <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+            <div className="flex flex-col flex-1 min-w-0 overflow-hidden pb-16 md:pb-0">
                 {/* Header */}
                 <Header isLive={isLive} />
 

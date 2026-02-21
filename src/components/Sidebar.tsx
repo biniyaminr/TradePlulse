@@ -30,13 +30,16 @@ export default function Sidebar() {
     return (
         <aside
             className={clsx(
-                "relative flex flex-col border-r transition-all duration-300 shrink-0",
-                "border-[#1e2d45] bg-[#0f1629]",
-                collapsed ? "w-16" : "w-56"
+                "transition-all duration-300 shrink-0 border-[#1e2d45] bg-[#0f1629] z-50",
+                // Mobile layout
+                "fixed bottom-0 left-0 right-0 h-16 flex flex-row items-center justify-around border-t",
+                // Desktop layout
+                "md:relative md:h-screen md:flex-col md:justify-start md:border-t-0 md:border-r",
+                collapsed ? "md:w-16" : "md:w-56"
             )}
         >
             {/* Logo */}
-            <div className="flex items-center gap-3 px-4 py-5 border-b border-[#1e2d45]">
+            <div className="hidden md:flex items-center gap-3 px-4 py-5 border-b border-[#1e2d45]">
                 <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 shrink-0">
                     <Zap size={16} className="text-white" />
                 </div>
@@ -48,7 +51,7 @@ export default function Sidebar() {
             </div>
 
             {/* Nav Items */}
-            <nav className="flex flex-col gap-1 p-2 flex-1 mt-2">
+            <nav className="flex flex-row md:flex-col gap-1 p-2 flex-1 md:mt-2 w-full md:w-auto justify-around md:justify-start">
                 {navItems.map((item) => {
                     const isActive =
                         item.href === "/"
@@ -60,14 +63,17 @@ export default function Sidebar() {
                             key={item.label}
                             href={item.href}
                             className={clsx(
-                                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
+                                "flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 rounded-lg px-2 py-1.5 md:px-3 md:py-2.5 text-sm font-medium transition-all duration-150 flex-1 md:flex-none",
                                 isActive
                                     ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
                                     : "text-[#94a3b8] hover:bg-[#1a2235] hover:text-white"
                             )}
                         >
                             <span className="shrink-0">{item.icon}</span>
-                            {!collapsed && <span>{item.label}</span>}
+                            <span className={clsx(
+                                "text-[10px] md:text-sm",
+                                collapsed ? "hidden" : "block md:inline"
+                            )}>{item.label}</span>
                         </Link>
                     );
                 })}
@@ -76,7 +82,7 @@ export default function Sidebar() {
             {/* Collapse Toggle */}
             <button
                 onClick={() => setCollapsed((c) => !c)}
-                className="absolute -right-3 top-20 z-10 flex items-center justify-center w-6 h-6 rounded-full bg-[#1e2d45] border border-[#1e2d45] text-[#94a3b8] hover:text-white transition-colors"
+                className="hidden md:flex absolute -right-3 top-20 z-10 items-center justify-center w-6 h-6 rounded-full bg-[#1e2d45] border border-[#1e2d45] text-[#94a3b8] hover:text-white transition-colors"
                 aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
                 {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
@@ -84,7 +90,7 @@ export default function Sidebar() {
 
             {/* Footer */}
             {!collapsed && (
-                <div className="p-4 border-t border-[#1e2d45]">
+                <div className="hidden md:block p-4 border-t border-[#1e2d45]">
                     <div className="flex items-center gap-2 text-xs text-[#475569]">
                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot" />
                         Market data streaming

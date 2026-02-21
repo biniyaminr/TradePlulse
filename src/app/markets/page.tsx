@@ -184,18 +184,18 @@ export default function MarketsPage() {
             </nav>
 
             {/* ── Workspace ──────────────────────────────────────────────── */}
-            <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+            <div className="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
 
                 {/* Left Sidebar: Quick Toggle */}
-                <div className="w-full lg:w-[200px] shrink-0 border-r border-[#1e2d45] bg-[#0f1629] p-4 flex flex-col gap-2">
-                    <h2 className="text-[10px] font-bold uppercase tracking-widest text-[#475569] mb-2 px-1">Watchlist</h2>
+                <div className="w-full lg:w-[200px] shrink-0 border-b lg:border-b-0 lg:border-r border-[#1e2d45] bg-[#0f1629] p-3 flex flex-row lg:flex-col gap-3 lg:gap-2 overflow-x-auto scrollbar-none items-center lg:items-stretch">
+                    <h2 className="hidden lg:block text-[10px] font-bold uppercase tracking-widest text-[#475569] mb-2 px-1">Watchlist</h2>
 
                     {ASSETS.map((asset) => (
                         <button
                             key={asset.id}
                             onClick={() => setActiveAsset(asset.id)}
-                            className={`flex items-center gap-3 w-full px-3 py-3 rounded-xl transition-all duration-200 text-left ${activeAsset === asset.id
-                                ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_15px_rgba(34,211,238,0.1)]"
+                            className={`flex shrink-0 min-w-[150px] lg:min-w-0 items-center gap-3 lg:w-full px-3 py-2 lg:py-3 rounded-xl transition-all duration-200 text-left ${activeAsset === asset.id
+                                ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 lg:shadow-[0_0_15px_rgba(34,211,238,0.1)]"
                                 : "bg-[#111827] text-[#94a3b8] border border-[#1e2d45] hover:border-[#334155] hover:bg-[#1a2235]"
                                 }`}
                         >
@@ -210,7 +210,7 @@ export default function MarketsPage() {
                         </button>
                     ))}
 
-                    <div className="mt-auto px-1">
+                    <div className="hidden lg:block mt-auto px-1">
                         <div className="p-3 rounded-lg bg-[#111827] border border-[#1e2d45]">
                             <p className="text-[10px] text-[#64748b] leading-tight">
                                 <strong className="text-white">Pro Tip:</strong> Use the 4H timeframe for ICC swing setups. Wait for the 1:4 R/R confirmation before entry.
