@@ -1,10 +1,16 @@
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
     try {
+        const { userId } = await auth();
+        if (!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
         const body = await req.json();
         const { prices } = body;
 
@@ -13,15 +19,15 @@ export async function POST(req: Request) {
         }
 
         // 1. Get or create the unified Account
-        let account = await prisma.account.findFirst();
+        let account = await prisma.account.findFirst({ where: { userId } });
         if (!account) {
             account = await prisma.account.create({
-                data: { virtualBalance: 10000, riskPercentage: 1.0, winRate: 0, totalTrades: 0 } as any
+                data: { virtualBalance: 10000, riskPercentage: 1.0, winRate: 0, totalTrades: 0, userId } as any
             });
         }
 
         // 2. Fetch all ACTIVE trades
-        const activeTrades = await prisma.trade.findMany({ where: { status: "ACTIVE" } });
+        const activeTrades = await prisma.trade.findMany({ where: { status: "ACTIVE", userId } });
 
         let updatedCount = 0;
         let pnlTotal = 0;
@@ -72,7 +78,7 @@ export async function POST(req: Request) {
 
             // Recalculate global win rate for accuracy
             const allClosed = await prisma.trade.findMany({
-                where: { status: { in: ["WON", "LOST"] } }
+                where: { status: { in: ["WON", "LOST"] }, userId }
             });
             const totalWins = allClosed.filter(t => t.status === "WON").length;
             const totalClosed = allClosed.length;

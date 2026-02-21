@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { GoogleGenAI } from "@google/genai";
 import prisma from "@/lib/prisma";
 
@@ -85,6 +86,11 @@ function buildFallback(signal: "BUY" | "SELL", currentPrice: number): TradeSetup
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
     try {
+        const { userId } = await auth();
+        if (!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
         // 1 ── Validate request body
         let body: AnalyzeRequestBody;
         try {
@@ -201,7 +207,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         // 6 ── Persist trade setup with Dynamic Position Sizing
         try {
             // Fetch the user's live account settings
-            const account = await prisma.account.findFirst();
+            const account = await prisma.account.findFirst({ where: { userId } });
 
             const virtualBalance = account ? account.virtualBalance : 10000;
             const riskPercentage = account ? account.riskPercentage : 1.0;
@@ -221,7 +227,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                     tp: setup.tp,
                     status: "ACTIVE",
                     positionSize,
-                    riskAmount
+                    riskAmount,
+                    userId
                 },
             });
         } catch (dbErr: unknown) {

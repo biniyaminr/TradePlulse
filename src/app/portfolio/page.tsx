@@ -3,6 +3,8 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { BookOpen, TrendingUp, TrendingDown, LayoutDashboard, ChevronRight, RefreshCw, Activity, Wallet, Target, History, Edit2 } from "lucide-react";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import SimulatorEngine from "@/components/SimulatorEngine";
 import AccountDashboard from "@/components/AccountDashboard";
 
@@ -29,12 +31,20 @@ function formatDate(date: Date): string {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function PortfolioPage() {
-    const trades = await prisma.trade.findMany({ orderBy: { createdAt: "desc" } });
+    const { userId } = await auth();
+    if (!userId) {
+        redirect("/");
+    }
+
+    const trades = await prisma.trade.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" }
+    });
 
     // Fallback account if simulation hasn't run yet
-    let account = await prisma.account.findFirst();
+    let account = await prisma.account.findFirst({ where: { userId } });
     if (!account) {
-        account = { id: "default", virtualBalance: 10000, riskPercentage: 1.0, winRate: 0, totalTrades: 0 };
+        account = { id: "default", virtualBalance: 10000, riskPercentage: 1.0, winRate: 0, totalTrades: 0, userId };
     }
 
     const activeTrades = trades.filter(t => t.status === "ACTIVE");

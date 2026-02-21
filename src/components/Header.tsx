@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Wifi, WifiOff, Bell } from "lucide-react";
 import clsx from "clsx";
+import { UserButton, SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
 
 interface HeaderProps {
     isLive: boolean;
@@ -74,10 +75,17 @@ export default function Header({ isLive }: HeaderProps) {
                     <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-blue-500" />
                 </button>
 
-                {/* Avatar */}
-                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-white text-sm font-bold cursor-pointer">
-                    T
-                </div>
+                {/* Auth */}
+                <SignedIn>
+                    <UserButton afterSignOutUrl="/" />
+                </SignedIn>
+                <SignedOut>
+                    <SignInButton mode="modal">
+                        <button className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-white text-sm font-bold cursor-pointer hover:opacity-90 transition-opacity" title="Sign In">
+                            In
+                        </button>
+                    </SignInButton>
+                </SignedOut>
             </div>
         </header>
     );

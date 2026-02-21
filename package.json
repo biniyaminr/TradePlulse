@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.38.1",
+    "@clerk/themes": "^2.4.55",
     "@google/genai": "^1.42.0",
     "@neondatabase/serverless": "^1.0.2",
     "@prisma/adapter-better-sqlite3": "^7.4.1",

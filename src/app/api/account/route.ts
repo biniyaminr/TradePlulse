@@ -1,10 +1,16 @@
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
     try {
+        const { userId } = await auth();
+        if (!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
         const body = await req.json();
         const { newBalance, riskPercentage } = body;
 
@@ -15,7 +21,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Invalid risk percentage" }, { status: 400 });
         }
 
-        const account = await prisma.account.findFirst();
+        const account = await prisma.account.findFirst({ where: { userId } });
 
         const dataToUpdate: any = {};
         if (newBalance !== undefined) dataToUpdate.virtualBalance = newBalance;
@@ -23,7 +29,7 @@ export async function POST(req: Request) {
 
         if (!account) {
             await prisma.account.create({
-                data: { virtualBalance: newBalance ?? 10000, riskPercentage: riskPercentage ?? 1.0, winRate: 0, totalTrades: 0 }
+                data: { virtualBalance: newBalance ?? 10000, riskPercentage: riskPercentage ?? 1.0, winRate: 0, totalTrades: 0, userId }
             });
         } else if (Object.keys(dataToUpdate).length > 0) {
             await prisma.account.update({
