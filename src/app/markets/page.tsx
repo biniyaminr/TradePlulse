@@ -220,9 +220,9 @@ export default function MarketsPage() {
                 </div>
 
                 {/* Center: Chart */}
-                <div className="flex-1 p-4 flex flex-col min-h-[500px]">
+                <div className="flex-1 p-4 flex flex-col min-h-[400px] lg:min-h-0">
                     {/* Header above chart */}
-                    <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center gap-3 mb-4 shrink-0">
                         <div className="w-8 h-8 rounded-lg bg-[#111827] border border-[#1e2d45] flex items-center justify-center">
                             <TrendingUp size={14} className="text-white" />
                         </div>
@@ -233,7 +233,7 @@ export default function MarketsPage() {
                     </div>
 
                     {/* TV Widget Wrapper */}
-                    <div className="flex-1 bg-[#0d1525] rounded-xl relative shadow-xl">
+                    <div className="flex-1 bg-[#0d1525] rounded-xl relative shadow-xl min-h-[300px] lg:min-h-0">
                         {/* We use key to force unmount/remount of the widget when symbol changes */}
                         <TradingViewWidget key={activeConfig.tvSymbol} symbol={activeConfig.tvSymbol} />
                     </div>
