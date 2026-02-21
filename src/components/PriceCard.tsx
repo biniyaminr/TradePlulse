@@ -174,8 +174,8 @@ export default function PriceCard({ data, featured = false }: PriceCardProps) {
                 <div
                     className={clsx(
                         "absolute top-3 right-3 z-10",
-                        "flex items-center gap-1 px-2.5 py-1 rounded-full",
-                        "text-[11px] font-bold tracking-widest uppercase border",
+                        "flex items-center gap-1 px-2 py-1 sm:px-2.5 sm:py-1 rounded-full",
+                        "text-[9px] sm:text-[11px] font-bold tracking-widest uppercase border",
                         isBuy
                             ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/40 shadow-[0_0_10px_2px_rgba(16,185,129,0.35)]"
                             : "bg-red-500/15 text-red-300 border-red-500/40 shadow-[0_0_10px_2px_rgba(239,68,68,0.35)]"
@@ -192,7 +192,7 @@ export default function PriceCard({ data, featured = false }: PriceCardProps) {
             )}
 
             {/* Header row */}
-            <div className="flex items-start justify-between mb-3">
+            <div className="flex items-start justify-between mb-3 gap-2">
                 <div className="flex items-center gap-2">
                     <div
                         className={clsx(
@@ -214,8 +214,8 @@ export default function PriceCard({ data, featured = false }: PriceCardProps) {
                 {/* 24h change badge — shifts left when signal badge occupies top-right */}
                 <span
                     className={clsx(
-                        "flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold",
-                        hasSignal ? "mr-14" : "",
+                        "flex items-center justify-center gap-1 px-2 py-1 rounded-md text-[10px] sm:text-xs font-semibold shrink-0",
+                        hasSignal ? "mr-16 sm:mr-14" : "",
                         isGain ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"
                     )}
                 >
@@ -230,7 +230,7 @@ export default function PriceCard({ data, featured = false }: PriceCardProps) {
                 <p
                     className={clsx(
                         "font-bold tracking-tight text-white tabular-nums",
-                        featured ? "text-3xl" : "text-xl"
+                        featured ? "text-2xl sm:text-3xl" : "text-lg sm:text-xl"
                     )}
                 >
                     {formatPrice(data.symbol, data.price)}
@@ -340,7 +340,7 @@ export default function PriceCard({ data, featured = false }: PriceCardProps) {
 
                         {/* Results */}
                         {aiSetup && !isAnalyzing && (
-                            <div className="grid grid-cols-3 gap-3">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
                                 {/* Entry */}
                                 <div>
                                     <p className="text-[9px] text-[#475569] uppercase tracking-widest mb-1">Entry</p>
@@ -359,7 +359,7 @@ export default function PriceCard({ data, featured = false }: PriceCardProps) {
                                     </p>
                                 </div>
                                 {/* Take Profit */}
-                                <div>
+                                <div className="col-span-2 sm:col-span-1 mt-2 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-0 border-[#1e2d45]">
                                     <p className="text-[9px] text-[#475569] uppercase tracking-widest mb-1">Take Profit</p>
                                     <p className="text-xs font-bold text-emerald-400 tabular-nums">
                                         {formatPrice(data.symbol, aiSetup.tp)}
@@ -382,7 +382,7 @@ export default function PriceCard({ data, featured = false }: PriceCardProps) {
             )}
 
             {/* 24h stats */}
-            <div className="grid grid-cols-3 gap-2 pt-3 border-t border-[#1e2d45]">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-3 border-t border-[#1e2d45]">
                 <div>
                     <p className="text-[10px] text-[#475569] uppercase tracking-wide mb-0.5">24h High</p>
                     <p className="text-xs font-semibold text-emerald-400 tabular-nums">
@@ -395,7 +395,7 @@ export default function PriceCard({ data, featured = false }: PriceCardProps) {
                         {formatPrice(data.symbol, data.low24h)}
                     </p>
                 </div>
-                <div>
+                <div className="col-span-2 sm:col-span-1 mt-1 sm:mt-0 pt-1 sm:pt-0 border-t sm:border-0 border-[#1e2d45]">
                     <p className="text-[10px] text-[#475569] uppercase tracking-wide mb-0.5">Volume</p>
                     <p className="text-xs font-semibold text-[#94a3b8] tabular-nums">
                         {formatVolume(data.volume)}
