@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
         const results: any[] = [];
 
         // Broadcast logic
-        const promises = allAccounts.map(async (account) => {
+        const promises = allAccounts.map(async (account: any) => {
             const token = account.metaApiToken || process.env.META_API_TOKEN;
             const accountId = account.metaApiAccountId || process.env.META_API_ACCOUNT_ID;
 
