@@ -1,12 +1,10 @@
-export const dynamic = "force-dynamic";
-
 import { NextRequest, NextResponse } from "next/server";
+// Using CommonJS require and extracting .default to bypass Turbopack's broken ESM browser resolution
+const MetaApiModule = require("metaapi.cloud-sdk");
+const MetaApi = MetaApiModule.default || MetaApiModule;
 
 export async function POST(req: NextRequest) {
     try {
-        // Dynamically import to prevent "window is not defined" error during Next.js static build
-        const MetaApiModule = await import("metaapi.cloud-sdk");
-        const MetaApi = MetaApiModule.default || MetaApiModule;
         const body = await req.json();
         const { symbol, action, volume, stopLoss, takeProfit } = body;
 
