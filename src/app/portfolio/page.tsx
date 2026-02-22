@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import prisma from "@/lib/prisma";
+import type { Trade } from "@prisma/client";
 import { BookOpen, TrendingUp, TrendingDown, LayoutDashboard, ChevronRight, RefreshCw, Activity, Wallet, Target, History, Edit2 } from "lucide-react";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
@@ -47,11 +48,11 @@ export default async function PortfolioPage() {
         account = { id: "default", virtualBalance: 10000, riskPercentage: 1.0, winRate: 0, totalTrades: 0, userId };
     }
 
-    const activeTrades = trades.filter(t => t.status === "ACTIVE");
-    const closedTrades = trades.filter(t => t.status !== "ACTIVE");
+    const activeTrades = trades.filter((t: Trade) => t.status === "ACTIVE");
+    const closedTrades = trades.filter((t: Trade) => t.status !== "ACTIVE");
 
     // Calculate total realized PnL from trades
-    const totalPnl = closedTrades.reduce((sum, t) => sum + (t.pnl || 0), 0);
+    const totalPnl = closedTrades.reduce((sum: number, t: Trade) => sum + (t.pnl || 0), 0);
 
     return (
         <div className="min-h-screen bg-[#0a0f1e] text-white">
@@ -118,7 +119,7 @@ export default async function PortfolioPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {activeTrades.map((trade, i) => {
+                                    {activeTrades.map((trade: Trade, i: number) => {
                                         const isBuy = trade.signal === "BUY";
                                         const rr = Math.abs(trade.tp - trade.entry) / Math.abs(trade.entry - trade.sl);
 
@@ -169,7 +170,7 @@ export default async function PortfolioPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {closedTrades.map((trade, i) => {
+                                    {closedTrades.map((trade: Trade, i: number) => {
                                         const isWon = trade.status === "WON";
                                         const targetHit = isWon ? trade.tp : trade.sl;
                                         const pnlAmount = trade.pnl || 0;
