@@ -187,7 +187,7 @@ export default function MarketsPage() {
             <div className="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
 
                 {/* Left Sidebar: Quick Toggle */}
-                <div className="w-full lg:w-[200px] shrink-0 border-b lg:border-b-0 lg:border-r border-[#1e2d45] bg-[#0f1629] p-3 flex flex-row lg:flex-col gap-3 lg:gap-2 overflow-x-auto scrollbar-none items-center lg:items-stretch">
+                <div className="w-full lg:w-[200px] shrink-0 border-b lg:border-b-0 lg:border-r border-[#1e2d45] bg-[#0f1629] p-3 flex flex-row lg:flex-col gap-2 overflow-x-auto hide-scrollbar items-center lg:items-stretch pb-2">
                     <h2 className="hidden lg:block text-[10px] font-bold uppercase tracking-widest text-[#475569] mb-2 px-1">Watchlist</h2>
 
                     {ASSETS.map((asset) => (
@@ -220,7 +220,7 @@ export default function MarketsPage() {
                 </div>
 
                 {/* Center: Chart */}
-                <div className="flex-1 p-4 flex flex-col min-h-[400px] lg:min-h-0">
+                <div className="flex-1 p-2 md:p-6 flex flex-col">
                     {/* Header above chart */}
                     <div className="flex items-center gap-3 mb-4 shrink-0">
                         <div className="w-8 h-8 rounded-lg bg-[#111827] border border-[#1e2d45] flex items-center justify-center">
@@ -233,14 +233,14 @@ export default function MarketsPage() {
                     </div>
 
                     {/* TV Widget Wrapper */}
-                    <div className="flex-1 bg-[#0d1525] rounded-xl relative shadow-xl min-h-[300px] lg:min-h-0">
+                    <div className="w-full h-[55vh] md:h-[600px] lg:h-full lg:flex-1 bg-[#0d1525] rounded-xl relative shadow-xl overflow-hidden shrink-0">
                         {/* We use key to force unmount/remount of the widget when symbol changes */}
                         <TradingViewWidget key={activeConfig.tvSymbol} symbol={activeConfig.tvSymbol} />
                     </div>
                 </div>
 
                 {/* Right Sidebar: Tools */}
-                <div className="w-full lg:w-[320px] shrink-0 border-l border-[#1e2d45] bg-[#0a0f1e] p-4 flex flex-col gap-4 overflow-y-auto">
+                <div className="w-full lg:w-[320px] shrink-0 border-t lg:border-t-0 lg:border-l border-[#1e2d45] bg-[#0a0f1e] p-4 flex flex-col gap-4 overflow-y-auto mt-4 lg:mt-0">
 
                     {/* ICC Notes */}
                     <div className="flex flex-col bg-[#0d1525] border border-[#1e2d45] rounded-xl overflow-hidden shrink-0">

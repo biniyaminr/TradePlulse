@@ -70,7 +70,7 @@ function NewsCard({ item }: { item: NewsItem }) {
                         transition-all duration-200 p-4 ${borderColor}`}
         >
             {/* Top row: source + high-impact star + time-ago */}
-            <div className="flex items-center gap-2 mb-2.5">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-2 mb-2.5">
                 {/* Source badge */}
                 <span className="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-widest bg-[#1a2235] text-[#94a3b8] border border-[#1e2d45]">
                     {item.source}
@@ -83,15 +83,17 @@ function NewsCard({ item }: { item: NewsItem }) {
                     </span>
                 ))}
 
+                <div className="flex-1 min-w-[20px]" />
+
                 {/* High-impact star */}
                 {item.isHighImpact && (
-                    <span className="ml-auto flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-300 border border-amber-500/30">
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-300 border border-amber-500/30">
                         <Star size={9} fill="currentColor" /> High Impact
                     </span>
                 )}
 
                 {/* Time ago */}
-                <span className={`${item.isHighImpact ? "" : "ml-auto"} text-[10px] text-[#475569] tabular-nums`}>
+                <span className="text-[10px] text-[#475569] tabular-nums shrink-0">
                     {timeAgo(item.publishedAt)}
                 </span>
             </div>
