@@ -36,3 +36,15 @@ model Account {
   totalTrades    Int    @default(0)
   userId         String
 }
+
+model BacktestRun {
+  id           String   @id @default(uuid())
+  userId       String
+  asset        String
+  timeframe    String
+  totalPnL     Float
+  winRate      Float
+  profitFactor Float
+  maxDrawdown  Float
+  createdAt    DateTime @default(now())
+}

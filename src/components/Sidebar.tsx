@@ -12,6 +12,7 @@ import {
     ChevronLeft,
     ChevronRight,
     Zap,
+    Calculator,
 } from "lucide-react";
 import clsx from "clsx";
 
@@ -19,6 +20,7 @@ const navItems = [
     { icon: <LayoutDashboard size={20} />, label: "Dashboard", href: "/" },
     { icon: <TrendingUp size={20} />, label: "Markets", href: "/markets" },
     { icon: <Briefcase size={20} />, label: "Portfolio", href: "/portfolio" },
+    { icon: <Calculator size={20} />, label: "Backtest", href: "/backtest" },
     { icon: <Newspaper size={20} />, label: "News", href: "/news" },
     { icon: <Settings size={20} />, label: "Settings", href: "/settings" },
 ];
