@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+
 // Using CommonJS require and extracting .default to bypass Turbopack's broken ESM browser resolution
 const MetaApiModule = require("metaapi.cloud-sdk");
 const MetaApi = MetaApiModule.default || MetaApiModule;
@@ -15,56 +17,82 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const token = process.env.META_API_TOKEN;
-        const accountId = process.env.META_API_ACCOUNT_ID;
+        const allAccounts = await prisma.account.findMany();
 
-        if (!token || !accountId) {
-            return NextResponse.json(
-                { error: "Server missing MetaApi configuration (token or accountId)" },
-                { status: 500 }
-            );
+        if (allAccounts.length === 0) {
+            return NextResponse.json({ message: "No active accounts found to execute trade" }, { status: 200 });
         }
 
-        // Initialize MetaApi Bridge
-        const api = new MetaApi(token);
-        const account = await api.metatraderAccountApi.getAccount(accountId);
+        const results: any[] = [];
 
-        // Ensure the terminal is connected
-        await account.waitConnected();
+        // Broadcast logic
+        const promises = allAccounts.map(async (account) => {
+            const token = account.metaApiToken || process.env.META_API_TOKEN;
+            const accountId = account.metaApiAccountId || process.env.META_API_ACCOUNT_ID;
 
-        const connection = account.getRPCConnection();
-        await connection.connect();
-        await connection.waitSynchronized();
+            if (!token || !accountId) {
+                results.push({ userId: account.userId, status: "failed", reason: "Missing MetaApi credentials" });
+                return;
+            }
 
-        let tradeResult;
+            try {
+                // Initialize MetaApi Bridge for this user
+                const api = new MetaApi(token);
+                const metaAccount = await api.metatraderAccountApi.getAccount(accountId);
 
-        if (action === "BUY") {
-            // Options: symbol, volume, stopLoss, takeProfit
-            tradeResult = await connection.createMarketBuyOrder(symbol, volume, stopLoss, takeProfit);
-        } else if (action === "SELL") {
-            tradeResult = await connection.createMarketSellOrder(symbol, volume, stopLoss, takeProfit);
-        } else {
-            return NextResponse.json(
-                { error: "Action must be 'BUY' or 'SELL'" },
-                { status: 400 }
-            );
-        }
+                await metaAccount.waitConnected();
+                const connection = metaAccount.getRPCConnection();
+                await connection.connect();
+                await connection.waitSynchronized();
+
+                let tradeResult;
+                if (action === "BUY") {
+                    tradeResult = await connection.createMarketBuyOrder(symbol, volume, stopLoss, takeProfit);
+                } else if (action === "SELL") {
+                    tradeResult = await connection.createMarketSellOrder(symbol, volume, stopLoss, takeProfit);
+                } else {
+                    results.push({ userId: account.userId, status: "failed", reason: "Invalid action" });
+                    return;
+                }
+
+                // Save record to DB
+                await prisma.trade.create({
+                    data: {
+                        symbol,
+                        signal: action,
+                        entry: tradeResult?.price || 0,
+                        sl: stopLoss || 0,
+                        tp: takeProfit || 0,
+                        status: "ACTIVE",
+                        userId: account.userId
+                    }
+                });
+
+                results.push({ userId: account.userId, status: "success", tradeResult });
+
+            } catch (err: any) {
+                console.error(`Error executing for user ${account.userId}:`, err.message || err);
+                results.push({ userId: account.userId, status: "failed", reason: err.message || String(err) });
+            }
+        });
+
+        await Promise.all(promises);
 
         return NextResponse.json(
             {
                 success: true,
-                message: "Trade successfully executed",
-                result: tradeResult
+                message: "Trade broadcast complete",
+                results
             },
             { status: 200 }
         );
 
     } catch (error: any) {
-        console.error("MetaApi Error:", error);
+        console.error("MetaApi Broadcast Error:", error);
         return NextResponse.json(
             {
-                error: "Trade execution failed",
-                details: error.message || error
+                error: "Trade execution broadcast failed",
+                details: error.message || String(error)
             },
             { status: 500 }
         );

@@ -8,6 +8,8 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import SimulatorEngine from "@/components/SimulatorEngine";
 import AccountDashboard from "@/components/AccountDashboard";
+import MilestoneTracker from "@/components/MilestoneTracker";
+import SyncButton from "@/components/SyncButton";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -45,7 +47,7 @@ export default async function PortfolioPage() {
     // Fallback account if simulation hasn't run yet
     let account = await prisma.account.findFirst({ where: { userId } });
     if (!account) {
-        account = { id: "default", virtualBalance: 10000, riskPercentage: 1.0, winRate: 0, totalTrades: 0, userId };
+        account = { id: "default", virtualBalance: 10000, riskPercentage: 1.0, winRate: 0, totalTrades: 0, userId, metaApiToken: null, metaApiAccountId: null } as any;
     }
 
     const activeTrades = trades.filter((t: Trade) => t.status === "ACTIVE");
@@ -88,18 +90,24 @@ export default async function PortfolioPage() {
 
                 {/* ── Account Overview Dashboard ── */}
                 <AccountDashboard
-                    virtualBalance={account.virtualBalance}
-                    riskPercentage={account.riskPercentage ?? 1.0}
-                    winRate={account.winRate}
-                    totalTrades={account.totalTrades}
+                    virtualBalance={(account as any).virtualBalance}
+                    riskPercentage={(account as any).riskPercentage ?? 1.0}
+                    winRate={(account as any).winRate}
+                    totalTrades={(account as any).totalTrades}
                     totalPnl={totalPnl}
                 />
 
+                {/* ── The $10k Challenge ── */}
+                <MilestoneTracker currentBalance={(account as any).virtualBalance} />
+
                 {/* ── Active Trades ── */}
                 <section>
-                    <div className="flex items-center gap-2 mb-4">
-                        <Activity size={16} className="text-blue-400" />
-                        <h2 className="text-lg font-semibold">Active Orders ({activeTrades.length})</h2>
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <Activity size={16} className="text-blue-400" />
+                            <h2 className="text-lg font-semibold">Active Orders ({activeTrades.length})</h2>
+                        </div>
+                        <SyncButton />
                     </div>
 
                     {activeTrades.length === 0 ? (
@@ -162,7 +170,7 @@ export default async function PortfolioPage() {
                             <table className="w-full text-sm min-w-[600px]">
                                 <thead>
                                     <tr className="bg-[#111827] border-b border-[#1e2d45]">
-                                        {["Date", "Asset", "Status", "Entry", "Target Hit", "PnL"].map((col) => (
+                                        {["Date", "Asset", "Signal", "Entry Price", "Close Price", "PnL"].map((col) => (
                                             <th key={col} className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-[#475569]">
                                                 {col}
                                             </th>
@@ -172,7 +180,8 @@ export default async function PortfolioPage() {
                                 <tbody>
                                     {closedTrades.map((trade: Trade, i: number) => {
                                         const isWon = trade.status === "WON";
-                                        const targetHit = isWon ? trade.tp : trade.sl;
+                                        const isBuy = trade.signal === "BUY";
+                                        const closePrice = isWon ? trade.tp : trade.sl;
                                         const pnlAmount = trade.pnl || 0;
 
                                         return (
@@ -180,15 +189,15 @@ export default async function PortfolioPage() {
                                                 <td className="px-4 py-3 text-xs text-[#64748b] whitespace-nowrap tabular-nums">{formatDate(trade.createdAt)}</td>
                                                 <td className="px-4 py-3 font-semibold text-[#94a3b8]">{trade.symbol}</td>
                                                 <td className="px-4 py-3">
-                                                    <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest border ${isWon ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-rose-500/10 text-rose-400 border-rose-500/20"}`}>
-                                                        {trade.status}
+                                                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest border ${isBuy ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/30" : "bg-rose-500/10 text-rose-300 border-rose-500/30"}`}>
+                                                        {isBuy ? <TrendingUp size={10} /> : <TrendingDown size={10} />} {trade.signal}
                                                     </span>
                                                 </td>
                                                 <td className="px-4 py-3 tabular-nums text-[#64748b]">{formatPrice(trade.entry)}</td>
-                                                <td className="px-4 py-3 tabular-nums text-[#94a3b8] font-medium">{formatPrice(targetHit)}</td>
+                                                <td className="px-4 py-3 tabular-nums text-[#94a3b8] font-medium">{formatPrice(closePrice)}</td>
                                                 <td className="px-4 py-3 tabular-nums font-bold">
-                                                    <span className={isWon ? "text-emerald-400" : "text-rose-400"}>
-                                                        {isWon ? "+" : "-"}${Math.abs(pnlAmount).toFixed(2)}
+                                                    <span className={pnlAmount > 0 ? "text-emerald-400" : "text-rose-400"}>
+                                                        {pnlAmount > 0 ? "+" : "-"}${Math.abs(pnlAmount).toFixed(2)}
                                                     </span>
                                                 </td>
                                             </tr>

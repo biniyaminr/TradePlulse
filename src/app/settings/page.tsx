@@ -23,6 +23,10 @@ export default function SettingsPage() {
     const [balance, setBalance] = useState("10000");
     const [riskPerTrade, setRiskPerTrade] = useState("2");
 
+    // MetaApi Configuration
+    const [metaApiToken, setMetaApiToken] = useState("");
+    const [metaApiAccountId, setMetaApiAccountId] = useState("");
+
     // AI Strategy
     const [strictIcc, setStrictIcc] = useState(true);
     const [minRR, setMinRR] = useState("1:4");
@@ -38,13 +42,11 @@ export default function SettingsPage() {
     // ─── Effects ────────────────────────────────────────────────────────────
 
     useEffect(() => {
-        // Load settings from local storage
+        // Load localStorage settings
         const loaded = localStorage.getItem("tradepulse_settings");
         if (loaded) {
             try {
                 const parsed = JSON.parse(loaded);
-                if (parsed.balance) setBalance(parsed.balance);
-                if (parsed.riskPerTrade) setRiskPerTrade(parsed.riskPerTrade);
                 if (parsed.strictIcc !== undefined) setStrictIcc(parsed.strictIcc);
                 if (parsed.minRR) setMinRR(parsed.minRR);
                 if (parsed.tvTheme) setTvTheme(parsed.tvTheme);
@@ -53,20 +55,48 @@ export default function SettingsPage() {
             }
         }
 
+        // Fetch user account settings from DB
+        const fetchAccount = async () => {
+            try {
+                const res = await fetch("/api/account");
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.account) {
+                        setBalance(data.account.virtualBalance?.toString() || "10000");
+                        setRiskPerTrade(data.account.riskPercentage?.toString() || "2");
+                        if (data.account.metaApiToken) setMetaApiToken(data.account.metaApiToken);
+                        if (data.account.metaApiAccountId) setMetaApiAccountId(data.account.metaApiAccountId);
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to fetch account", error);
+            }
+        };
+        fetchAccount();
+
         // Simulating actual health checks here (could be real API calls in the future)
         setDbConnected(true);
         setTgConnected(true);
     }, []);
 
-    const handleSave = () => {
-        const settings = {
-            balance,
-            riskPerTrade,
-            strictIcc,
-            minRR,
-            tvTheme
-        };
-        localStorage.setItem("tradepulse_settings", JSON.stringify(settings));
+    const handleSave = async () => {
+        const localSettings = { strictIcc, minRR, tvTheme };
+        localStorage.setItem("tradepulse_settings", JSON.stringify(localSettings));
+
+        try {
+            await fetch("/api/account", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    newBalance: parseFloat(balance),
+                    riskPercentage: parseFloat(riskPerTrade),
+                    metaApiToken,
+                    metaApiAccountId
+                })
+            });
+        } catch (error) {
+            console.error("Failed to save to db", error);
+        }
 
         setSaved(true);
         setTimeout(() => setSaved(false), 2000);
@@ -295,6 +325,42 @@ export default function SettingsPage() {
                             <p className="text-[11px] text-[#64748b] mt-3">
                                 Refreshes the Markets page charts to match your system preference. The app wrapper remains dark mode natively.
                             </p>
+                        </div>
+                    </section>
+
+                    {/* ── MetaApi Configuration ── */}
+                    <section className="bg-[#0f1629] border border-[#1e2d45] rounded-xl overflow-hidden md:col-span-2">
+                        <div className="flex items-center gap-3 px-5 py-4 border-b border-[#1e2d45] bg-[#111827]">
+                            <Save size={18} className="text-orange-400" />
+                            <h2 className="font-semibold text-[#e2e8f0]">MetaApi Configuration</h2>
+                        </div>
+                        <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label className="block text-sm font-medium text-[#94a3b8] mb-1.5">
+                                    MetaApi Token
+                                </label>
+                                <input
+                                    type="password"
+                                    value={metaApiToken}
+                                    onChange={(e) => setMetaApiToken(e.target.value)}
+                                    className="w-full bg-[#1a2235] border border-[#1e2d45] rounded-lg py-2.5 px-4 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50"
+                                    placeholder="Enter your MetaApi token..."
+                                />
+                                <p className="text-[11px] text-[#64748b] mt-1.5">Your secret token used for placing real/paper trades on MetaTrader.</p>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-[#94a3b8] mb-1.5">
+                                    MetaApi Account ID
+                                </label>
+                                <input
+                                    type="text"
+                                    value={metaApiAccountId}
+                                    onChange={(e) => setMetaApiAccountId(e.target.value)}
+                                    className="w-full bg-[#1a2235] border border-[#1e2d45] rounded-lg py-2.5 px-4 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50"
+                                    placeholder="Enter your MetaApi account ID..."
+                                />
+                                <p className="text-[11px] text-[#64748b] mt-1.5">The specific account ID within your MetaApi workspace.</p>
+                            </div>
                         </div>
                     </section>
 

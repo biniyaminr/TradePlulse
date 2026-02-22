@@ -29,12 +29,14 @@ model Trade {
 }
 
 model Account {
-  id             String @id @default(uuid())
-  virtualBalance Float  @default(10000)
-  riskPercentage Float  @default(1.0)
-  winRate        Float  @default(0)
-  totalTrades    Int    @default(0)
-  userId         String
+  id               String  @id @default(uuid())
+  virtualBalance   Float   @default(10000)
+  riskPercentage   Float   @default(1.0)
+  winRate          Float   @default(0)
+  totalTrades      Int     @default(0)
+  userId           String
+  metaApiToken     String?
+  metaApiAccountId String?
 }
 
 model BacktestRun {
