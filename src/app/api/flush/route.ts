@@ -13,15 +13,26 @@ export async function GET() {
 
         const deleteResult = await prisma.trade.deleteMany({
             where: {
-                status: "ACTIVE",
-                userId: userId // Only flush the acting user's trades
+                userId: userId // Entire slate wipe for the acting user
+            }
+        });
+
+        const updateResult = await prisma.account.updateMany({
+            where: {
+                userId: userId
+            },
+            data: {
+                virtualBalance: 54.00,
+                winRate: 0,
+                totalTrades: 0
             }
         });
 
         return NextResponse.json({
             success: true,
-            message: `Successfully flushed ${deleteResult.count} active trades.`,
-            count: deleteResult.count
+            message: `Successfully flushed ${deleteResult.count} trades and reset portfolio.`,
+            deletedCount: deleteResult.count,
+            accountsReset: updateResult.count
         }, { status: 200 });
 
     } catch (error: any) {
