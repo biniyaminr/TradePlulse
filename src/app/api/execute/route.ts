@@ -36,6 +36,35 @@ export async function POST(req: NextRequest) {
             }
 
             try {
+                // Pre-flight checks
+                // 1. Position Limit Check
+                const activeTrades = await prisma.trade.findMany({
+                    where: {
+                        userId: account.userId,
+                        status: 'ACTIVE',
+                        symbol: symbol
+                    }
+                });
+
+                if (activeTrades.length > 0) {
+                    results.push({ userId: account.userId, status: "skipped", reason: "Position already open for this asset" });
+                    return;
+                }
+
+                // 2. Margin Protection
+                // Retrieve the most recent trade setup for this symbol to get the intended entry price
+                // Since execute doesn't have the entry price, we estimate based on the stopLoss distance
+                // We'll estimate risk amount if we have SL. In a live system, we'd ideally pass current price.
+                // Assuming standard risk % calculation from account balance if entry price is unknown
+                const virtualBalance = account.virtualBalance || 10000;
+                const riskPercentage = account.riskPercentage || 1.0;
+                const calculatedRiskAmount = virtualBalance * (riskPercentage / 100);
+
+                if (calculatedRiskAmount > virtualBalance) {
+                    results.push({ userId: account.userId, status: "skipped", reason: "Insufficient margin" });
+                    return;
+                }
+
                 // Initialize MetaApi Bridge for this user
                 const api = new MetaApi(token);
                 const metaAccount = await api.metatraderAccountApi.getAccount(accountId);
@@ -55,16 +84,22 @@ export async function POST(req: NextRequest) {
                     return;
                 }
 
+                // Calculate actual risk amount based on physical entry price
+                const actualEntry = tradeResult?.price || 0;
+                const slDistance = Math.abs(actualEntry - (stopLoss || 0));
+                const riskAmount = slDistance > 0 ? (slDistance * volume) : calculatedRiskAmount;
+
                 // Save record to DB
                 await prisma.trade.create({
                     data: {
                         symbol,
                         signal: action,
-                        entry: tradeResult?.price || 0,
+                        entry: actualEntry,
                         sl: stopLoss || 0,
                         tp: takeProfit || 0,
                         status: "ACTIVE",
-                        userId: account.userId
+                        userId: account.userId,
+                        riskAmount: riskAmount
                     }
                 });
 
