@@ -214,6 +214,31 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
             // Quant Math
             const riskAmount = virtualBalance * (riskPercentage / 100);
+
+            // Guardrail 1: Margin Protection
+            if (riskAmount > virtualBalance) {
+                return NextResponse.json(
+                    { error: "Insufficient margin to execute trade setup" },
+                    { status: 400 }
+                );
+            }
+
+            // Guardrail 2: Position Limit
+            const activeTrades = await prisma.trade.findMany({
+                where: {
+                    userId,
+                    status: 'ACTIVE',
+                    symbol
+                }
+            });
+
+            if (activeTrades.length > 0) {
+                return NextResponse.json(
+                    { error: "Position already open for this asset" },
+                    { status: 400 }
+                );
+            }
+
             const slDistance = Math.abs(setup.entry - setup.sl);
             // Protect against divide by zero if entry perfectly equals SL
             const positionSize = slDistance > 0 ? (riskAmount / slDistance) : 0;

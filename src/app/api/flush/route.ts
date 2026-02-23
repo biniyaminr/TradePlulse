@@ -11,16 +11,11 @@ export async function GET() {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const deleteResult = await prisma.trade.deleteMany({
-            where: {
-                userId: userId // Entire slate wipe for the acting user
-            }
-        });
+        // WIPE ALL TRADES GLOBALLY (Ignoring userId per emergency request)
+        const deleteResult = await prisma.trade.deleteMany({});
 
+        // WIPE ALL ACCOUNTS GLOBALLY
         const updateResult = await prisma.account.updateMany({
-            where: {
-                userId: userId
-            },
             data: {
                 virtualBalance: 54.00,
                 winRate: 0,
